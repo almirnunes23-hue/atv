@@ -5,6 +5,7 @@
 #include <map>
 #include <vector>
 
+#include "Curtidas.hpp"
 #include "Filtro.hpp"
 #include "Perfil.hpp"
 
@@ -22,9 +23,14 @@ public:
     bool proximoDaFila(Perfil& destino) const;
     void avancarFila();
 
+    void curtir(int de, int para);
+    bool deuMatch(int a, int b) const;
+    std::vector<Perfil> listarMatches(int idUsuario) const;
+
 private:
     std::map<int, Perfil> perfis;
     std::list<Perfil> fila;
+    Curtidas curtidas;
     int proximoId;
 };
 

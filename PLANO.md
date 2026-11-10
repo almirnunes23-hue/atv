@@ -216,6 +216,8 @@ Depois de cada etapa, rodo **todos** os cenários, não só o novo.
 
 - Ordem da fila: hoje é por nome. Se quiser, depois dá para ordenar por
   quantidade de preferências em comum.
-- "Pular" não traz o perfil de volta na mesma sessão.
+- "Pular" só avança a fila atual. Se a fila for refeita (mudar o filtro ou
+  entrar de novo em recomendações), o perfil pulado pode voltar. Só quem foi
+  curtido fica fora da fila.
 - Lista de cursos: fica no código, dentro da `Interface`.
 - Faixas: idade 18 a 100, semestre 1 a 12 (como está na descrição).

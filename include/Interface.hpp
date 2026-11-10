@@ -20,10 +20,12 @@ private:
     void entrarComo();
     void listarPerfis();
     void verRecomendacoes();
+    void verMatches();
 
     void configurarFiltro();
     void mostrarFiltro() const;
     void mostrarPerfil(const Perfil& perfil) const;
+    void mostrarContato(const Perfil& perfil) const;
     void escolherCursoFiltro();
     void escolherIdadeFiltro();
     void escolherGeneroFiltro();

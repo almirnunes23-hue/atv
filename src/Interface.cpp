@@ -59,6 +59,8 @@ void Interface::executar() {
             verRecomendacoes();
         } else if (opcao == 5) {
             configurarFiltro();
+        } else if (opcao == 6) {
+            verMatches();
         } else {
             std::cout << "Opcao invalida." << std::endl;
         }
@@ -82,6 +84,7 @@ void Interface::mostrarMenu() const {
     std::cout << "3 - Listar perfis" << std::endl;
     std::cout << "4 - Ver recomendacoes" << std::endl;
     std::cout << "5 - Configurar filtro" << std::endl;
+    std::cout << "6 - Ver matches" << std::endl;
     std::cout << "0 - Sair" << std::endl;
     std::cout << "Opcao: ";
 }
@@ -210,8 +213,9 @@ void Interface::verRecomendacoes() {
 
         mostrarPerfil(proximo);
 
-        std::cout << "1 - Pular" << std::endl;
-        std::cout << "2 - Mudar filtro" << std::endl;
+        std::cout << "1 - Curtir" << std::endl;
+        std::cout << "2 - Pular" << std::endl;
+        std::cout << "3 - Mudar filtro" << std::endl;
         std::cout << "0 - Voltar" << std::endl;
         std::cout << "Opcao: ";
 
@@ -223,13 +227,51 @@ void Interface::verRecomendacoes() {
         if (opcao == 0) {
             return;
         } else if (opcao == 1) {
+            sistema.curtir(usuarioAtual, proximo.getId());
+            std::cout << "Curtida registrada." << std::endl;
+
+            if (sistema.deuMatch(usuarioAtual, proximo.getId())) {
+                Perfil eu;
+                sistema.obterPerfil(usuarioAtual, eu);
+
+                std::cout << "Deu match com " << proximo.getNome()
+                          << "!" << std::endl;
+                std::cout << "Seu contato: ";
+                mostrarContato(eu);
+                std::cout << "Contato de " << proximo.getNome() << ": ";
+                mostrarContato(proximo);
+            }
+
             sistema.avancarFila();
         } else if (opcao == 2) {
+            sistema.avancarFila();
+        } else if (opcao == 3) {
             configurarFiltro();
             sistema.montarFila(usuarioAtual, filtro);
         } else {
             std::cout << "Opcao invalida." << std::endl;
         }
+    }
+}
+
+void Interface::verMatches() {
+    if (usuarioAtual < 0) {
+        std::cout << "Entre como um perfil primeiro." << std::endl;
+        return;
+    }
+
+    std::vector<Perfil> matches = sistema.listarMatches(usuarioAtual);
+
+    if (matches.empty()) {
+        std::cout << "Voce ainda nao tem matches." << std::endl;
+        return;
+    }
+
+    std::cout << "Seus matches:" << std::endl;
+    for (std::size_t i = 0; i < matches.size(); ++i) {
+        std::cout << matches[i].getId() << " - " << matches[i].getNome()
+                  << " | contato: ";
+        mostrarContato(matches[i]);
     }
 }
 
@@ -357,6 +399,14 @@ void Interface::mostrarPerfil(const Perfil& perfil) const {
         }
     }
     std::cout << std::endl;
+}
+
+void Interface::mostrarContato(const Perfil& perfil) const {
+    if (perfil.getContato().empty()) {
+        std::cout << "(nao informado)" << std::endl;
+    } else {
+        std::cout << perfil.getContato() << std::endl;
+    }
 }
 
 void Interface::escolherCursoFiltro() {

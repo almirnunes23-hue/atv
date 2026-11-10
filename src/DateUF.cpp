@@ -52,6 +52,9 @@ void DateUF::montarFila(int idUsuario, const Filtro& filtro) {
         if (it->first == idUsuario) {
             continue;
         }
+        if (curtidas.jaCurtiu(idUsuario, it->first)) {
+            continue;
+        }
         if (filtro.atende(it->second)) {
             fila.push_back(it->second);
         }
@@ -77,4 +80,29 @@ void DateUF::avancarFila() {
     if (!fila.empty()) {
         fila.pop_front();
     }
+}
+
+void DateUF::curtir(int de, int para) {
+    curtidas.curtir(de, para);
+}
+
+bool DateUF::deuMatch(int a, int b) const {
+    return curtidas.houveMatch(a, b);
+}
+
+std::vector<Perfil> DateUF::listarMatches(int idUsuario) const {
+    std::vector<Perfil> matches;
+    std::map<int, Perfil>::const_iterator it;
+
+    for (it = perfis.begin(); it != perfis.end(); ++it) {
+        if (it->first == idUsuario) {
+            continue;
+        }
+        if (curtidas.houveMatch(idUsuario, it->first)) {
+            matches.push_back(it->second);
+        }
+    }
+
+    std::sort(matches.begin(), matches.end());
+    return matches;
 }
