@@ -68,20 +68,12 @@ bool Perfil::temPreferencia(const std::string& preferencia) const {
     return preferencias.count(preferencia) > 0;
 }
 
-std::string Perfil::getWhatsapp() const {
-    return whatsapp;
+std::string Perfil::getContato() const {
+    return contato;
 }
 
-void Perfil::setWhatsapp(const std::string& whatsapp) {
-    this->whatsapp = whatsapp;
-}
-
-std::string Perfil::getTelegram() const {
-    return telegram;
-}
-
-void Perfil::setTelegram(const std::string& telegram) {
-    this->telegram = telegram;
+void Perfil::setContato(const std::string& contato) {
+    this->contato = contato;
 }
 
 bool Perfil::maiorDeIdade() const {

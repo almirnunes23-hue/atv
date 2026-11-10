@@ -105,11 +105,7 @@ void Interface::cadastrarPerfil() {
     std::cout << "--- Cadastrar perfil ---" << std::endl;
 
     std::string nome;
-    if (!lerTexto("Nome: ", nome)) {
-        return;
-    }
-    if (nome.empty()) {
-        std::cout << "Erro: o nome nao pode ficar vazio." << std::endl;
+    if (!lerNome(nome)) {
         return;
     }
 
@@ -121,18 +117,7 @@ void Interface::cadastrarPerfil() {
     }
 
     int idade = 0;
-    if (!lerInteiro("Idade: ", idade)) {
-        if (!fimDaEntrada) {
-            std::cout << "Erro: idade invalida. Digite um numero." << std::endl;
-        }
-        return;
-    }
-    if (idade < 18) {
-        std::cout << "Erro: menor de 18 anos nao pode se cadastrar." << std::endl;
-        return;
-    }
-    if (idade > 100) {
-        std::cout << "Erro: idade fora da faixa (18 a 100)." << std::endl;
+    if (!lerInteiroNaFaixa("Idade (18 a 100): ", 18, 100, idade)) {
         return;
     }
     perfil.setIdade(idade);
@@ -142,14 +127,7 @@ void Interface::cadastrarPerfil() {
     }
 
     int semestre = 0;
-    if (!lerInteiro("Semestre (1 a 12): ", semestre)) {
-        if (!fimDaEntrada) {
-            std::cout << "Erro: semestre invalido. Digite um numero." << std::endl;
-        }
-        return;
-    }
-    if (semestre < 1 || semestre > 12) {
-        std::cout << "Erro: semestre fora da faixa (1 a 12)." << std::endl;
+    if (!lerInteiroNaFaixa("Semestre (1 a 12): ", 1, 12, semestre)) {
         return;
     }
     perfil.setSemestre(semestre);
@@ -158,17 +136,12 @@ void Interface::cadastrarPerfil() {
         return;
     }
 
-    std::string whatsapp;
-    if (!lerTexto("WhatsApp (pode ficar vazio): ", whatsapp)) {
+    std::string contato;
+    if (!lerTexto("Contato (WhatsApp ou Telegram, pode ficar vazio): ",
+                  contato)) {
         return;
     }
-    perfil.setWhatsapp(whatsapp);
-
-    std::string telegram;
-    if (!lerTexto("Telegram (pode ficar vazio): ", telegram)) {
-        return;
-    }
-    perfil.setTelegram(telegram);
+    perfil.setContato(contato);
 
     int id = sistema.cadastrarPerfil(perfil);
     std::cout << "Perfil cadastrado com o numero " << id << "." << std::endl;
@@ -247,6 +220,43 @@ bool Interface::lerInteiro(const std::string& pergunta, int& valor) {
     return true;
 }
 
+bool Interface::lerInteiroNaFaixa(const std::string& pergunta, int minimo,
+                                  int maximo, int& valor) {
+    while (true) {
+        std::string linha;
+
+        std::cout << pergunta;
+        if (!lerLinha(linha)) {
+            return false;
+        }
+
+        std::stringstream ss(linha);
+        int lido = 0;
+        char resto = 0;
+
+        if ((ss >> lido) && !(ss >> resto) && lido >= minimo
+            && lido <= maximo) {
+            valor = lido;
+            return true;
+        }
+
+        std::cout << "Opcao invalida." << std::endl;
+    }
+}
+
+bool Interface::lerNome(std::string& nome) {
+    while (true) {
+        std::cout << "Nome: ";
+        if (!lerLinha(nome)) {
+            return false;
+        }
+        if (!nome.empty()) {
+            return true;
+        }
+        std::cout << "Opcao invalida." << std::endl;
+    }
+}
+
 bool Interface::lerCurso(Perfil& perfil) {
     std::cout << "Curso:" << std::endl;
     for (int i = 0; i < TOTAL_CURSOS; ++i) {
@@ -254,14 +264,7 @@ bool Interface::lerCurso(Perfil& perfil) {
     }
 
     int opcao = 0;
-    if (!lerInteiro("Opcao: ", opcao)) {
-        if (!fimDaEntrada) {
-            std::cout << "Erro: curso invalido." << std::endl;
-        }
-        return false;
-    }
-    if (opcao < 1 || opcao > TOTAL_CURSOS) {
-        std::cout << "Erro: curso invalido." << std::endl;
+    if (!lerInteiroNaFaixa("Opcao: ", 1, TOTAL_CURSOS, opcao)) {
         return false;
     }
 
@@ -276,14 +279,7 @@ bool Interface::lerGenero(Perfil& perfil) {
     }
 
     int opcao = 0;
-    if (!lerInteiro("Opcao: ", opcao)) {
-        if (!fimDaEntrada) {
-            std::cout << "Erro: genero invalido." << std::endl;
-        }
-        return false;
-    }
-    if (opcao < 1 || opcao > TOTAL_GENEROS) {
-        std::cout << "Erro: genero invalido." << std::endl;
+    if (!lerInteiroNaFaixa("Opcao: ", 1, TOTAL_GENEROS, opcao)) {
         return false;
     }
 
@@ -298,27 +294,39 @@ bool Interface::lerPreferencias(Perfil& perfil) {
         std::cout << "  " << (i + 1) << " - " << PREFERENCIAS[i] << std::endl;
     }
 
-    std::string linha;
-    std::cout << "Opcoes: ";
-    if (!lerLinha(linha)) {
-        return false;
-    }
-
-    std::stringstream ss(linha);
-    int numero = 0;
-
-    while (ss >> numero) {
-        if (numero < 1 || numero > TOTAL_PREFERENCIAS) {
-            std::cout << "Erro: preferencia invalida: " << numero << std::endl;
+    while (true) {
+        std::string linha;
+        std::cout << "Opcoes: ";
+        if (!lerLinha(linha)) {
             return false;
         }
-        perfil.adicionarPreferencia(PREFERENCIAS[numero - 1]);
-    }
 
-    if (!ss.eof()) {
-        std::cout << "Erro: use apenas numeros." << std::endl;
-        return false;
-    }
+        std::stringstream ss(linha);
+        std::vector<int> escolhidas;
+        int numero = 0;
+        bool valido = true;
 
-    return true;
+        while (ss >> numero) {
+            if (numero < 1 || numero > TOTAL_PREFERENCIAS) {
+                valido = false;
+                break;
+            }
+            escolhidas.push_back(numero);
+        }
+
+        if (valido && !ss.eof()) {
+            valido = false;
+        }
+
+        if (!valido) {
+            std::cout << "Opcao invalida." << std::endl;
+            continue;
+        }
+
+        for (std::size_t i = 0; i < escolhidas.size(); ++i) {
+            perfil.adicionarPreferencia(PREFERENCIAS[escolhidas[i] - 1]);
+        }
+
+        return true;
+    }
 }

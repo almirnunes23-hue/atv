@@ -31,11 +31,8 @@ public:
     void adicionarPreferencia(const std::string& preferencia);
     bool temPreferencia(const std::string& preferencia) const;
 
-    std::string getWhatsapp() const;
-    void setWhatsapp(const std::string& whatsapp);
-
-    std::string getTelegram() const;
-    void setTelegram(const std::string& telegram);
+    std::string getContato() const;
+    void setContato(const std::string& contato);
 
     bool maiorDeIdade() const;
 
@@ -50,8 +47,7 @@ private:
     std::string genero;
     int semestre;
     std::set<std::string> preferencias;
-    std::string whatsapp;
-    std::string telegram;
+    std::string contato;
 };
 
 #endif

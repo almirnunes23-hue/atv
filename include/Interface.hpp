@@ -22,6 +22,9 @@ private:
     bool lerLinha(std::string& linha);
     bool lerTexto(const std::string& pergunta, std::string& texto);
     bool lerInteiro(const std::string& pergunta, int& valor);
+    bool lerInteiroNaFaixa(const std::string& pergunta, int minimo,
+                           int maximo, int& valor);
+    bool lerNome(std::string& nome);
     bool lerCurso(Perfil& perfil);
     bool lerGenero(Perfil& perfil);
     bool lerPreferencias(Perfil& perfil);
