@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <iostream>
+#include <set>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -54,6 +55,10 @@ void Interface::executar() {
             entrarComo();
         } else if (opcao == 3) {
             listarPerfis();
+        } else if (opcao == 4) {
+            verRecomendacoes();
+        } else if (opcao == 5) {
+            configurarFiltro();
         } else {
             std::cout << "Opcao invalida." << std::endl;
         }
@@ -75,6 +80,8 @@ void Interface::mostrarMenu() const {
     std::cout << "1 - Cadastrar perfil" << std::endl;
     std::cout << "2 - Entrar como um perfil" << std::endl;
     std::cout << "3 - Listar perfis" << std::endl;
+    std::cout << "4 - Ver recomendacoes" << std::endl;
+    std::cout << "5 - Configurar filtro" << std::endl;
     std::cout << "0 - Sair" << std::endl;
     std::cout << "Opcao: ";
 }
@@ -183,6 +190,296 @@ void Interface::listarPerfis() {
                   << " | genero: " << perfis[i].getGenero()
                   << " | semestre: " << perfis[i].getSemestre()
                   << std::endl;
+    }
+}
+
+void Interface::verRecomendacoes() {
+    if (usuarioAtual < 0) {
+        std::cout << "Entre como um perfil primeiro." << std::endl;
+        return;
+    }
+
+    sistema.montarFila(usuarioAtual, filtro);
+
+    while (!fimDaEntrada) {
+        Perfil proximo;
+        if (!sistema.proximoDaFila(proximo)) {
+            std::cout << "Sem mais recomendacoes por enquanto." << std::endl;
+            return;
+        }
+
+        mostrarPerfil(proximo);
+
+        std::cout << "1 - Pular" << std::endl;
+        std::cout << "2 - Mudar filtro" << std::endl;
+        std::cout << "0 - Voltar" << std::endl;
+        std::cout << "Opcao: ";
+
+        int opcao = lerOpcao();
+        if (fimDaEntrada) {
+            return;
+        }
+
+        if (opcao == 0) {
+            return;
+        } else if (opcao == 1) {
+            sistema.avancarFila();
+        } else if (opcao == 2) {
+            configurarFiltro();
+            sistema.montarFila(usuarioAtual, filtro);
+        } else {
+            std::cout << "Opcao invalida." << std::endl;
+        }
+    }
+}
+
+void Interface::configurarFiltro() {
+    while (!fimDaEntrada) {
+        mostrarFiltro();
+
+        std::cout << "1 - Curso" << std::endl;
+        std::cout << "2 - Idade" << std::endl;
+        std::cout << "3 - Genero" << std::endl;
+        std::cout << "4 - Semestre" << std::endl;
+        std::cout << "5 - Preferencias" << std::endl;
+        std::cout << "6 - Limpar filtro" << std::endl;
+        std::cout << "0 - Voltar" << std::endl;
+        std::cout << "Opcao: ";
+
+        int opcao = lerOpcao();
+        if (fimDaEntrada) {
+            return;
+        }
+
+        if (opcao == 0) {
+            return;
+        } else if (opcao == 1) {
+            escolherCursoFiltro();
+        } else if (opcao == 2) {
+            escolherIdadeFiltro();
+        } else if (opcao == 3) {
+            escolherGeneroFiltro();
+        } else if (opcao == 4) {
+            escolherSemestreFiltro();
+        } else if (opcao == 5) {
+            escolherPreferenciasFiltro();
+        } else if (opcao == 6) {
+            filtro.limpar();
+            std::cout << "Filtro limpo." << std::endl;
+        } else {
+            std::cout << "Opcao invalida." << std::endl;
+        }
+    }
+}
+
+void Interface::mostrarFiltro() const {
+    std::cout << std::endl;
+    std::cout << "Filtro atual:" << std::endl;
+
+    std::cout << "  Curso: ";
+    if (filtro.getCurso().empty()) {
+        std::cout << "qualquer";
+    } else {
+        std::cout << filtro.getCurso();
+    }
+    std::cout << std::endl;
+
+    std::cout << "  Idade: ";
+    if (filtro.getIdadeMin() == 0 && filtro.getIdadeMax() == 0) {
+        std::cout << "qualquer";
+    } else {
+        if (filtro.getIdadeMin() > 0) {
+            std::cout << "de " << filtro.getIdadeMin();
+        }
+        if (filtro.getIdadeMax() > 0) {
+            if (filtro.getIdadeMin() > 0) {
+                std::cout << " ";
+            }
+            std::cout << "ate " << filtro.getIdadeMax();
+        }
+    }
+    std::cout << std::endl;
+
+    std::cout << "  Genero: ";
+    if (filtro.getGenero().empty()) {
+        std::cout << "qualquer";
+    } else {
+        std::cout << filtro.getGenero();
+    }
+    std::cout << std::endl;
+
+    std::cout << "  Semestre: ";
+    if (filtro.getSemestreMin() == 0 && filtro.getSemestreMax() == 0) {
+        std::cout << "qualquer";
+    } else {
+        if (filtro.getSemestreMin() > 0) {
+            std::cout << "de " << filtro.getSemestreMin();
+        }
+        if (filtro.getSemestreMax() > 0) {
+            if (filtro.getSemestreMin() > 0) {
+                std::cout << " ";
+            }
+            std::cout << "ate " << filtro.getSemestreMax();
+        }
+    }
+    std::cout << std::endl;
+
+    std::cout << "  Preferencias:";
+    std::set<std::string> prefs = filtro.getPreferencias();
+    if (prefs.empty()) {
+        std::cout << " qualquer";
+    } else {
+        std::set<std::string>::const_iterator it;
+        for (it = prefs.begin(); it != prefs.end(); ++it) {
+            std::cout << " " << *it;
+        }
+    }
+    std::cout << std::endl;
+}
+
+void Interface::mostrarPerfil(const Perfil& perfil) const {
+    std::cout << std::endl;
+    std::cout << "Perfil " << perfil.getId() << ": "
+              << perfil.getNome() << std::endl;
+    std::cout << "  Curso: " << perfil.getCurso() << std::endl;
+    std::cout << "  Idade: " << perfil.getIdade() << std::endl;
+    std::cout << "  Genero: " << perfil.getGenero() << std::endl;
+    std::cout << "  Semestre: " << perfil.getSemestre() << std::endl;
+
+    std::cout << "  Preferencias:";
+    std::set<std::string> prefs = perfil.getPreferencias();
+    if (prefs.empty()) {
+        std::cout << " nenhuma";
+    } else {
+        std::set<std::string>::const_iterator it;
+        for (it = prefs.begin(); it != prefs.end(); ++it) {
+            std::cout << " " << *it;
+        }
+    }
+    std::cout << std::endl;
+}
+
+void Interface::escolherCursoFiltro() {
+    std::cout << "Curso (0 = qualquer):" << std::endl;
+    for (int i = 0; i < TOTAL_CURSOS; ++i) {
+        std::cout << "  " << (i + 1) << " - " << CURSOS[i] << std::endl;
+    }
+
+    int opcao = 0;
+    if (!lerInteiroNaFaixa("Opcao: ", 0, TOTAL_CURSOS, opcao)) {
+        return;
+    }
+
+    if (opcao == 0) {
+        filtro.setCurso("");
+    } else {
+        filtro.setCurso(CURSOS[opcao - 1]);
+    }
+}
+
+void Interface::escolherIdadeFiltro() {
+    int minimo = 0;
+    int maximo = 0;
+
+    if (!lerInteiroNaFaixa("Idade minima (0 = sem limite): ", 0, 100,
+                           minimo)) {
+        return;
+    }
+    if (!lerInteiroNaFaixa("Idade maxima (0 = sem limite): ", 0, 100,
+                           maximo)) {
+        return;
+    }
+
+    if (minimo > 0 && maximo > 0 && minimo > maximo) {
+        std::cout << "Opcao invalida." << std::endl;
+        return;
+    }
+
+    filtro.setIdadeMin(minimo);
+    filtro.setIdadeMax(maximo);
+}
+
+void Interface::escolherGeneroFiltro() {
+    std::cout << "Genero (0 = qualquer):" << std::endl;
+    for (int i = 0; i < TOTAL_GENEROS; ++i) {
+        std::cout << "  " << (i + 1) << " - " << GENEROS[i] << std::endl;
+    }
+
+    int opcao = 0;
+    if (!lerInteiroNaFaixa("Opcao: ", 0, TOTAL_GENEROS, opcao)) {
+        return;
+    }
+
+    if (opcao == 0) {
+        filtro.setGenero("");
+    } else {
+        filtro.setGenero(GENEROS[opcao - 1]);
+    }
+}
+
+void Interface::escolherSemestreFiltro() {
+    int minimo = 0;
+    int maximo = 0;
+
+    if (!lerInteiroNaFaixa("Semestre minimo (0 = sem limite): ", 0, 12,
+                           minimo)) {
+        return;
+    }
+    if (!lerInteiroNaFaixa("Semestre maximo (0 = sem limite): ", 0, 12,
+                           maximo)) {
+        return;
+    }
+
+    if (minimo > 0 && maximo > 0 && minimo > maximo) {
+        std::cout << "Opcao invalida." << std::endl;
+        return;
+    }
+
+    filtro.setSemestreMin(minimo);
+    filtro.setSemestreMax(maximo);
+}
+
+void Interface::escolherPreferenciasFiltro() {
+    std::cout << "Preferencias (numeros separados por espaco,"
+              << " Enter para qualquer):" << std::endl;
+    for (int i = 0; i < TOTAL_PREFERENCIAS; ++i) {
+        std::cout << "  " << (i + 1) << " - " << PREFERENCIAS[i] << std::endl;
+    }
+
+    while (true) {
+        std::string linha;
+        std::cout << "Opcoes: ";
+        if (!lerLinha(linha)) {
+            return;
+        }
+
+        std::stringstream ss(linha);
+        std::vector<int> escolhidas;
+        int numero = 0;
+        bool valido = true;
+
+        while (ss >> numero) {
+            if (numero < 1 || numero > TOTAL_PREFERENCIAS) {
+                valido = false;
+                break;
+            }
+            escolhidas.push_back(numero);
+        }
+
+        if (valido && !ss.eof()) {
+            valido = false;
+        }
+
+        if (!valido) {
+            std::cout << "Opcao invalida." << std::endl;
+            continue;
+        }
+
+        filtro.limparPreferencias();
+        for (std::size_t i = 0; i < escolhidas.size(); ++i) {
+            filtro.adicionarPreferencia(PREFERENCIAS[escolhidas[i] - 1]);
+        }
+        return;
     }
 }
 

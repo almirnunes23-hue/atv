@@ -4,6 +4,7 @@
 #include <string>
 
 #include "DateUF.hpp"
+#include "Filtro.hpp"
 #include "Perfil.hpp"
 
 class Interface {
@@ -18,6 +19,16 @@ private:
     void cadastrarPerfil();
     void entrarComo();
     void listarPerfis();
+    void verRecomendacoes();
+
+    void configurarFiltro();
+    void mostrarFiltro() const;
+    void mostrarPerfil(const Perfil& perfil) const;
+    void escolherCursoFiltro();
+    void escolherIdadeFiltro();
+    void escolherGeneroFiltro();
+    void escolherSemestreFiltro();
+    void escolherPreferenciasFiltro();
 
     bool lerLinha(std::string& linha);
     bool lerTexto(const std::string& pergunta, std::string& texto);
@@ -30,6 +41,7 @@ private:
     bool lerPreferencias(Perfil& perfil);
 
     DateUF sistema;
+    Filtro filtro;
     int usuarioAtual;
     bool fimDaEntrada;
 };

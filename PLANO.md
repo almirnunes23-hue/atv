@@ -15,7 +15,7 @@ Os dados ficam só na memória: cada execução começa vazia.
 
 | Classe | Guarda | Responsabilidade |
 | --- | --- | --- |
-| `Perfil` | id, nome, curso, idade, gênero, semestre, preferências, WhatsApp, Telegram | representar uma pessoa; dizer se é maior de idade; comparar perfis |
+| `Perfil` | id, nome, curso, idade, gênero, semestre, preferências, contato | representar uma pessoa; dizer se é maior de idade; comparar perfis |
 | `Filtro` | curso, faixa de idade, gênero, faixa de semestre, preferências | dizer se um perfil se encaixa nos critérios |
 | `Curtidas` | quem curtiu quem | registrar curtidas e detectar match |
 | `DateUF` | perfis, curtidas, fila de recomendações | juntar tudo: cadastrar, montar fila, curtir, listar matches |
@@ -123,7 +123,9 @@ menu e o programa encerrar sem erro.
 
 **Erros tratados nesta etapa:** nome vazio, idade menor que 18, idade fora de
 18 a 100, semestre fora de 1 a 12, texto onde se espera número, "entrar como"
-com id inexistente.
+com id inexistente. Quando um campo é recusado, a tela mostra "Opcao invalida."
+e pede o mesmo campo de novo, sem cancelar o cadastro. O contato é um campo
+só: número de WhatsApp ou de Telegram.
 
 **Como testar:** cadastrar dois perfis válidos, tentar um com 17 anos, tentar
 um com idade `"abc"`, entrar com id inexistente, listar.
@@ -141,14 +143,14 @@ um com idade `"abc"`, entrar com id inexistente, listar.
 - `bool atende(const Perfil&) const` — idade e semestre por faixa; gênero e
   curso por igualdade; preferências por "pelo menos uma em comum";
 - `DateUF::montarFila(int idUsuario, const Filtro&)` — limpa a `list`, copia
-  os perfis que não são o usuário, que não foram curtidos por ele e que
-  passam no filtro, e chama `fila.sort()`;
+  os perfis que não são o usuário e que passam no filtro, e chama
+  `fila.sort()`;
 - `filaVazia()`, `proximoDaFila(Perfil&)`, `avancarFila()`;
-- menu: ver próximo perfil, curtir, pular, mudar filtro.
+- menu: ver próximo perfil, pular, mudar filtro (o "curtir" entra na etapa 4).
 
-**Como testar:** três perfis, filtro por curso, filtro por idade, filtro que
-não deixa ninguém (deve aparecer "sem mais recomendações por enquanto"),
-trocar o filtro no meio e ver a fila ser refeita.
+**Como testar:** três perfis, filtro por curso, filtro por idade, filtro por
+preferências, filtro que não deixa ninguém (deve aparecer "sem mais
+recomendações por enquanto"), trocar o filtro no meio e ver a fila ser refeita.
 
 **Commit:** `adiciona filtros e fila de recomendacoes`.
 
@@ -164,6 +166,8 @@ trocar o filtro no meio e ver a fila ser refeita.
 - `bool jaCurtiu(int de, int para) const`;
 - `bool houveMatch(int a, int b) const` — `a` curtiu `b` e `b` curtiu `a`;
 - `DateUF::curtir`, `DateUF::deuMatch`;
+- `montarFila` passa a ignorar os perfis que o usuário já curtiu;
+- a tela de recomendações ganha a opção "Curtir";
 - `vector<Perfil> listarMatches(int idUsuario) const` — filtra e ordena com
   `sort`;
 - menu: ao curtir, avisar se deu match e mostrar os contatos dos dois; opção
