@@ -14,7 +14,7 @@ semestre, preferências e contato (WhatsApp e Telegram).
 - semestre: número inteiro, de 1 a 12
 - preferências: lista fixa, pode marcar várias (atividade física, beber,
   videogames, animes, esportes, leitura)
-- contato: WhatsApp e Telegram, texto livre, podem ficar em branco
+- contato: WhatsApp ou Telegram, texto livre, podem ficar em branco
 
 Cada perfil recebe um número de identificação na ordem de cadastro. Nomes
 podem se repetir; o número é que identifica.
